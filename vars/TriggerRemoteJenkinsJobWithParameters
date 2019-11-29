@@ -1,0 +1,14 @@
+#!/usr/bin/env groovy
+
+
+
+def call(Map[:] args) {
+	FName = args.fname ? null
+	LName = args.lname ? null
+	
+	println "Received args: \n" +
+			"FName=${FName} \n" +
+			"LName=${LName} \n" 
+}
+
+
