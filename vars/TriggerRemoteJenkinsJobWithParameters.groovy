@@ -10,8 +10,8 @@ def jsonParse(def json) {
 
 
 def call(Map args = [:]) {
-	String arg_remoteJenkinsJobUrl = args.jobUrl ? null
-	String arg_remoteJenkinsJobToken = args.token ? null
+	arg_remoteJenkinsJobUrl : args.jobUrl ? null
+	arg_remoteJenkinsJobToken : args.token ? null
 	
 	/* Check mandatory args */
 	if (! arg_remoteJenkinsJobUrl || ! arg_remoteJenkinsJobToken) {
