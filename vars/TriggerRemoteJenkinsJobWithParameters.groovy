@@ -13,11 +13,11 @@ def call(Map args = [:]) {
 	/* Assign args */
 	jobUrl = args.jobUrl  ?: null
 	jobToken = args.jobToken ?: null
-	timeoutSeconds = args.timeoutSeconds.toInteger() ?: 30
+	timeoutSeconds = args.timeoutSeconds ?: 30
 	
 	/* Check mandatory args */
 	if (! jobUrl || ! jobToken) {error "Missing mandatory args: \njobUrl=${jobUrl} \njobToken=${jobToken} \n"}
-	if (timeoutSeconds <= 0 || retryCount < 0) {error "Bad args received: \ntimeoutSeconds=${timeoutSeconds} \ntimeoutSeconds must be greater than 0"}
+	if (timeoutSeconds.toInteger() <= 0 || retryCount < 0) {error "Bad args received: \ntimeoutSeconds=${timeoutSeconds} \ntimeoutSeconds must be greater than 0"}
 	
 	println "Trigger Remote Jenkins Job Params: \n" +
 			" jobUrl=${jobUrl} \n" +
