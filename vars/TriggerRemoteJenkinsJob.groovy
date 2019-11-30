@@ -16,8 +16,8 @@ def call(Map args = [:]) {
 	remoteJobParametersString = args.remoteJobParametersString ?: null
 	timeoutSec = args.timeoutSec ?: 120
 	sleepBetweenPollingSec = args.sleepBetweenPollingSec ?: 5
-	waitForRemoteJobToFinish = args.waitForRemoteJobToFinish      
-	failBuildOnRemoteJobFailure = args.failBuildOnRemoteJobFailure
+	waitForRemoteJobToFinish = args.waitForRemoteJobToFinish       ?: true
+	failBuildOnRemoteJobFailure = args.failBuildOnRemoteJobFailure ?: true
 	
 	/* Validate mandatory args */
 	waitForRemoteJobToFinish = waitForRemoteJobToFinish.toBoolean()
