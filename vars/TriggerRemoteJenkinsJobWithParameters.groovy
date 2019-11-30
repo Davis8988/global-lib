@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 import groovy.json.JsonSlurperClassic 
-
+import groovy.json.JsonOutput
 
 @NonCPS
 def jsonParse(def json) {
@@ -35,12 +35,12 @@ def call(Map args = [:]) {
 	
 	def remoteJenkins_Status = getRemoteJenkinsStatus(jobUrl)
 	def remoteJenkins_Status_Json = jsonParse(remoteJenkins_Status)
-	print("Remote Jenkins Status:\n"+remoteJenkins_Status_Json)
+	print("Remote Jenkins Status:\n"+JsonOutput.prettyPrint(remoteJenkins_Status_Json))
 }
 
 
 def getRemoteJenkinsStatus(jobUrl) {
-	def curl_command = "curl -X POST ${jobUrl}/api/json "
+	def curl_command = """curl -X POST "${jobUrl}/api/json" """
 	print "Executing: ${curl_command}"
 	def proc = curl_command.execute()
 	proc.waitFor()
