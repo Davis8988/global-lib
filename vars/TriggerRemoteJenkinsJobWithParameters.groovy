@@ -15,11 +15,7 @@ def call(Map args = [:]) {
 	jobToken = args.jobToken ?: null
 	
 	/* Check mandatory args */
-	if (! jobUrl || ! jobToken) {
-		error "Missing mandatory args: \n" +
-			  "jobUrl=${jobUrl} \n" +
-			  "jobToken=${jobToken} \n"
-	}
+	if (! jobUrl || ! jobToken) {error "Missing mandatory args: \njobUrl=${jobUrl} \njobToken=${jobToken} \n"}
 	
 	println "Received args: \n" +
 			"jobUrl=${jobUrl} \n" +
@@ -37,11 +33,11 @@ def call(Map args = [:]) {
 	def remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
 	
 	nextBuildNumber = remoteJenkinsJobStatus_Json.get("nextBuildNumber", null)
-	nextBuildNumber2 = remoteJenkinsJobStatus_Json.get("nextBuildNumber2", null)
-	print("Next build numbers:\n" +
-		  " nextBuildNumber=${nextBuildNumber}\n "+
-		  " nextBuildNumber2=${nextBuildNumber2}\n ")
-		  
+	if (! nextBuildNumber) {error "Failed getting next build number in remote jenkins job. \nCannot issue remote command to start a new job"}
+	
+	executeRemoteJenkinsJob(jobUrl, jobToken)
+	
+	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber)
 	
 	
 }
@@ -53,10 +49,40 @@ def getRemoteJenkinsJobStatus(jobUrl) {
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
-		error "CURL execution failed:\n${proc.err.text}"
+		error "Failed getting remote jenkins job status.\nCURL execution failure:\n${proc.err.text}"
 	}
 	
 	return proc.in.text.trim()
+}
+
+def executeRemoteJenkinsJob(jobUrl, jobToken) {
+	def curl_command = "curl -X POST --fail ${jobUrl}/build?jobToken=${jobToken}"
+	print "Execution remote jenkins job at: ${jobUrl}/build"
+	def proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "Failed starting remote jenkins job\nCURL execution failure:\n${proc.err.text}"
+	}
+}
+
+
+def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber) {
+	timeoutSeconds = 6
+	retriesCount = 10
+	def isFinishedWaiting = false
+	while(!isFinishedWaiting && retriesCount > 0) {
+		sleep(timeoutSeconds)
+		def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}")
+		isFinishedWaiting = checkIfRemoteJobFinished(jsonParse(remoteJenkinsJobStatus), nextBuildNumber)
+	}
+	
+	print "Done waiting for remote job to finished building"
+}
+
+def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
+	if (remoteJenkinsJobStatus_Json['building']) {print "remote job still building"; return false}
+	print "remote job finished building";
+	return true
 }
 
 
