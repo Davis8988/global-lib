@@ -58,7 +58,13 @@ def call(Map args = [:]) {
 	sleep(3)
 	
 	/* Check if remote job was successful */
-	if (failBuildOnRemoteJobFailure) {checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber)}
+	if (failBuildOnRemoteJobFailure) {
+		if (checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber)) {
+			error "Remote job [NO. ${nextBuildNumber}] finsihed with failure: ${jobUrl}/${nextBuildNumber}/console" 
+		}
+	}
+	
+	print "SUCCESS - Remote job [NO. ${nextBuildNumber}] finsihed successfully: ${jobUrl}/${nextBuildNumber}/console"
 }
 
 
@@ -106,7 +112,7 @@ def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sle
 	def abortOnCurlFailure = false  //Should not abort here since on the first few executions that build is not present yet. So we get NOT FOUND error.
 	
 	/* Wait untill remote job has finished building, or timeout expires*/
-	print "Waiting for remote job [With Build NO. ${nextBuildNumber}] to start ${jobUrl}/${nextBuildNumber} and finish building.."
+	print "Waiting for remote job [NO. ${nextBuildNumber}] to start ${jobUrl}/${nextBuildNumber} and finish building.."
 	timeout(time: timeoutSeconds, unit: 'SECONDS') {
 		while(!isFinishedWaiting) {
 			sleep(sleepBetweenPollingSec)
@@ -157,10 +163,8 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
 	print "Comparing ${lastSuccessfulBuild.number} == ${nextBuildNumber}"
 	if (lastSuccessfulBuild.number == nextBuildNumber) {
-		print "SUCCESS - Remote job ${nextBuildNumber} finsihed successfully:\n${jobUrl}/${nextBuildNumber}/console"
 		return true
 	} else {
-		print "FAILURE - Remote job ${nextBuildNumber} finsihed with failure:\n${jobUrl}/${nextBuildNumber}/console"
 		return false
 	}
 }
