@@ -110,12 +110,11 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 	print "curl_command=${curl_command}"
 	
 	print "Attempting to execute remote jenkins job"
-	sh ("${curl_command}")
-	//def proc = curl_command.execute()
-	//proc.waitFor()
-	//if (proc.exitValue()) {
-	//	error "Failed starting remote jenkins job\nCURL execution failure:\n${proc.err.text}"
-	//}
+	def proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "Failed starting remote jenkins job\nCURL execution failure:\n${proc.err.text}"
+	}
 }
 
 
