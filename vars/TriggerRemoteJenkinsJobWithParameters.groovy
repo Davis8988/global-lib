@@ -33,18 +33,21 @@ def call(Map args = [:]) {
 	if (jobUrl[jobUrlLength-1] == '/') {jobUrl=jobUrl.substring(0, jobUrlLength-1)}
 	
 	
-	def remoteJenkins_Status = getRemoteJenkinsStatus(jobUrl, jobToken)
-	def params = jsonParse(env.choice_app)
+	def remoteJenkins_Status = getRemoteJenkinsStatus(jobUrl)
+	def remoteJenkins_Status_Json = jsonParse(remoteJenkins_Status)
+	print("Remote Jenkins Status:\n"+remoteJenkins_Status_Json)
 }
 
 
-def getRemoteJenkinsStatus(jobUrl, jobToken) {
+def getRemoteJenkinsStatus(jobUrl) {
+	def curl_command = 'curl -X POST "${jobUrl}/api/json"'
+	def proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "${proc.err.text}"
+	}
 	
-	sh """
-		echo "${jobUrl}/build?token=${jobToken}"
-		curl -X POST "${jobUrl}/build?token=${jobToken}"
-	"""
-	
+	return proc.in.text.trim()
 }
 
 
