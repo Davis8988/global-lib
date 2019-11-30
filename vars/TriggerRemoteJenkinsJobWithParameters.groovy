@@ -59,7 +59,7 @@ def call(Map args = [:]) {
 	
 	/* Check if remote job building failed*/
 	if (failBuildOnRemoteJobFailure) {
-		if (checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber).toBoolean()) {
+		if (checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) == false) {
 			error "Remote job [No. ${nextBuildNumber}] finsihed with failure: ${jobUrl}/${nextBuildNumber}/console" 
 		}
 	}
@@ -162,7 +162,7 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 	
 	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
 	print "Comparing ${lastSuccessfulBuild.number} == ${nextBuildNumber}"
-	if (lastSuccessfulBuild.number.toInteger().equals(nextBuildNumber.toInteger())) {
+	if (lastSuccessfulBuild.number == nextBuildNumber) {
 		return true
 	} else {
 		return false
