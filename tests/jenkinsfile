@@ -4,7 +4,7 @@ node {
     
     print "triggering other jenkins"
     
-    TriggerRemoteJenkinsJobWithParameters(
+    TriggerRemoteJenkinsJob(
         jobUrl : "http://13.90.250.12:8081/job/Test_Remote_Trigger/",
         jobToken : "onesimlabbuild",
 		remoteJobParametersString : "LAB_NAME=Green , HELLO=nowww , HELL=its about time2",

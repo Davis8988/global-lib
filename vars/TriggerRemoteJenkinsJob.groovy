@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 import groovy.json.JsonSlurperClassic 
-import groovy.json.JsonOutput
+
 
 @NonCPS
 def jsonParse(def json) {
@@ -55,10 +55,10 @@ def call(Map args = [:]) {
 	/* Trigger remote jenkins job */
 	triggerRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
 	
-	/* If doesn't want to wait - then exit here */
+	/* If doesn't want to wait - then finish and exit here */
 	if (!waitForRemoteJobToFinish) {
 		print "Finished triggering build of remote jenkins job: ${jobUrl}/${nextBuildNumber} \nContinuing.."
-		return		
+		return
 	} 
 	
 	/* Wait for it to finish */
@@ -77,7 +77,6 @@ def call(Map args = [:]) {
 	print "Remote job [No. ${nextBuildNumber}] finsihed successfully: ${jobUrl}/${nextBuildNumber}/console"
 	
 }
-
 
 def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
 	def curl_command = "curl -X POST --fail ${jobUrl}/api/json "
@@ -107,7 +106,6 @@ def triggerRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 		/* overwrite execution url for parameterized jobs */
 		curl_command = "curl -X POST --fail ${jobUrl}/buildWithParameters?token=${jobToken}${remoteJobParams}"
 	}
-	print "curl_command=${curl_command}"
 	
 	print "Attempting to trigger remote jenkins job"
 	def proc = curl_command.execute()
@@ -116,7 +114,6 @@ def triggerRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 		error "Failed triggering remote jenkins job\nCURL execution failure:\n${proc.err.text}"
 	}
 }
-
 
 def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sleepBetweenPollingSec) {
 	/* Init */
