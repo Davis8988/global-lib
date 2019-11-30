@@ -56,7 +56,7 @@ def getRemoteJenkinsJobStatus(jobUrl) {
 }
 
 def executeRemoteJenkinsJob(jobUrl, jobToken) {
-	def curl_command = "curl -X POST --fail ${jobUrl}/build?jobToken=${jobToken}"
+	def curl_command = "curl -X POST --fail ${jobUrl}/build?token=${jobToken}"
 	print "Execution remote jenkins job at: ${jobUrl}/build"
 	def proc = curl_command.execute()
 	proc.waitFor()
