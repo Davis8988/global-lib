@@ -52,8 +52,9 @@ def call(Map args = [:]) {
 	executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
 	
 	/* Wait for it to finish */
-	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
+	def remoteJenkinsJobFinishedStatus_Json = waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
 	
+	if (failBuildOnRemoteJobFailure) {checkIfRemoteJobWasSuccessful(remoteJenkinsJobFinishedStatus_Json, nextBuildNumber, jobUrl)}
 }
 
 
@@ -72,15 +73,21 @@ def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
 
 def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString) {
 	
+	/* Execution url: */
+	def curl_command = "curl -X POST --fail ${jobUrl}/build?token=${jobToken}"
+	
+	/* If remote job is parameterized, then it has a different remote execution url - so need to overwrite above url */
 	def isRemoteJobAcceptsParameters = checkIfRemoteJobAcceptsParameters(remoteJenkinsJobStatus_Json)
+	if (isRemoteJobAcceptsParameters) {
+		def remoteJobParams = ""
+		/* If received params then include them in the request */
+		if (remoteJobParametersString) {remoteJobParams = getRemoteJobParametersFormattedString(remoteJobParametersString)}
+		
+		/* overwrite execution url for parameterized jobs */
+		def curl_command = "curl -X POST --fail ${remoteJobParams} ${jobUrl}/buildWithParameters?token=${jobToken}"
+	}
 	
-	if (remoteJobParametersString) {remoteJobParams = getRemoteJobParametersFormattedString(remoteJobParametersString)}
-	def curl_command = "curl -X POST --fail ${jobUrl}/build?token=${jobToken}${remoteJobParams}"
-	
-	/* Print command with or without params */
-	if (remoteJobParametersString) {print "Execution remote jenkins job at: ${jobUrl}/build"}
-	else {print "Execution remote jenkins job at: ${jobUrl}/build"}
-	
+	print "Attempting to execute remote jenkins job"
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
@@ -92,17 +99,19 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sleepBetweenPollingSec) {
 	def isFinishedWaiting = false
 	def abortOnCurlFailure = false  //Should not abort here since on the first few executions that build is not present yet. So we get NOT FOUND error.
+	def remoteJenkinsJobStatus_Json = null
 	print "Waiting for remote job to start ${jobUrl}/${nextBuildNumber} and finish building.."
 	timeout(time: timeoutSeconds, unit: 'SECONDS') {
 		while(!isFinishedWaiting) {
 			sleep(sleepBetweenPollingSec)
 			def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}", abortOnCurlFailure)
-			isFinishedWaiting = checkIfRemoteJobFinished(jsonParse(remoteJenkinsJobStatus), nextBuildNumber)
+			remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
+			isFinishedWaiting = checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber)
 		}
 	}
 	
-	
 	print "Done waiting for remote job to finished building.."
+	return remoteJenkinsJobStatus_Json
 }
 
 def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
@@ -113,10 +122,28 @@ def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
 
 def checkIfRemoteJobAcceptsParameters(remoteJenkinsJobStatus_Json) {
 	for (prop in remoteJenkinsJobStatus_Json.get("property")) {
-		print "prop=${prop}\n"+
-			  "_class=${prop._class}"
-		
+		if ("${prop._class}" == "hudson.model.ParametersDefinitionProperty") {return true}
 	}
+	
+	return false
 	
 }
 
+def getRemoteJobParametersFormattedString(remoteJobParametersString) {
+	def remoteJobParams_result = ""
+	def remoteJobParams_arr = remoteJobParametersString.toString().split(",")
+	for (jobParam in remoteJobParams_arr) {
+		remoteJobParams_result += "-d ${jobParam.trim()} "
+	}
+	
+	return remoteJobParams_result
+}
+
+def checkIfRemoteJobWasSuccessful(remoteJenkinsJobFinishedStatus_Json, nextBuildNumber, jobUrl) {
+	if (! remoteJenkinsJobFinishedStatus_Json) {error "Failed checking if remote job was successful - job result json object is null"}
+	def lastSuccessfulBuild = remoteJenkinsJobFinishedStatus_Json.get("lastSuccessfulBuild", null)
+	if (! lastSuccessfulBuild) {error "Failed checking if remote job was successful - could not read property 'lastSuccessfulBuild' of job result json object"}
+	print "Comparing ${lastSuccessfulBuild} == ${nextBuildNumber}"
+	if (lastSuccessfulBuild == nextBuildNumber) {print "SUCCESS - Remote job ${nextBuildNumber} finsihed successfully:\n${jobUrl}/${nextBuildNumber}/console"; return true}
+	else {"FAILURE - Remote job ${nextBuildNumber} finsihed with failure:\n${jobUrl}/${nextBuildNumber}/console"; return false}
+}
