@@ -100,12 +100,13 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sleepBetweenPollingSec) {
 	def isFinishedWaiting = false
 	def abortOnCurlFailure = false  //Should not abort here since on the first few executions that build is not present yet. So we get NOT FOUND error.
+	def remoteJenkinsJobStatus = ""
 	def remoteJenkinsJobStatus_Json = null
 	print "Waiting for remote job to start ${jobUrl}/${nextBuildNumber} and finish building.."
 	timeout(time: timeoutSeconds, unit: 'SECONDS') {
 		while(!isFinishedWaiting) {
 			sleep(sleepBetweenPollingSec)
-			def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}", abortOnCurlFailure)
+			remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}", abortOnCurlFailure)
 			remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
 			isFinishedWaiting = checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber)
 		}
