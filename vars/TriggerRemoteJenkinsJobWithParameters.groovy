@@ -57,14 +57,14 @@ def call(Map args = [:]) {
 	/* Delay for 3 seconds to let remote jenkins finish updating */
 	sleep(3)
 	
-	/* Check if remote job was successful */
+	/* Check if remote job building failed*/
 	if (failBuildOnRemoteJobFailure) {
-		if (checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber)) {
+		if (checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber).toBoolean()) {
 			error "Remote job [NO. ${nextBuildNumber}] finsihed with failure: ${jobUrl}/${nextBuildNumber}/console" 
 		}
 	}
 	
-	print "SUCCESS - Remote job [NO. ${nextBuildNumber}] finsihed successfully: ${jobUrl}/${nextBuildNumber}/console"
+	print "Remote job [NO. ${nextBuildNumber}] finsihed successfully: ${jobUrl}/${nextBuildNumber}/console"
 }
 
 
