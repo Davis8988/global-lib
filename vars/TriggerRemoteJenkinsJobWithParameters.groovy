@@ -40,7 +40,7 @@ def call(Map args = [:]) {
 	nextBuildNumber2 = remoteJenkinsJobStatus_Json.get("nextBuildNumber2", null)
 	print("Next build numbers:\n" +
 		  " nextBuildNumber=${nextBuildNumber}\n "+
-		  " nextBuildNumber2=${nextBuildNumber2}\n "
+		  " nextBuildNumber2=${nextBuildNumber2}\n ")
 		  
 	
 	
