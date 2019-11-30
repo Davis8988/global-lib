@@ -10,26 +10,28 @@ def jsonParse(def json) {
 
 
 def call(Map args = [:]) {
-	arg_remoteJenkinsJobUrl = args.jobUrl ?: null
-	arg_remoteJenkinsJobToken = args.token ?: null
+	checkArgs(args)
+	
+	arg_remoteJenkinsJobUrl = args.jobUrl
+	arg_remoteJenkinsJobToken = args.token
+	
+	
+	def remoteJenkinsJobUrl_Corrected = getCorrectRemoteJenkinsJobUrl(arg_remoteJenkinsJobUrl)
+	def remoteJenkins_Status = getRemoteJenkinsStatus(remoteJenkinsJobUrl_Corrected, arg_remoteJenkinsJobToken)
+	def params = jsonParse(env.choice_app)
+}
+
+def checkArgs(args) {
+	/* Check mandatory args */
+	if (! args.arg_remoteJenkinsJobUrl || ! args.arg_remoteJenkinsJobToken) {
+		error "Missing mandatory args: \n" +
+			  "jobUrl=${args.arg_remoteJenkinsJobUrl} \n" +
+			  "token=${args.arg_remoteJenkinsJobToken} \n"
+	}
 	
 	println "Received args: \n" +
 			"jobUrl=${arg_remoteJenkinsJobUrl} \n" +
 			"token=${arg_remoteJenkinsJobToken} \n" 
-	
-	
-	/* Check mandatory args */
-	if (! arg_remoteJenkinsJobUrl || ! arg_remoteJenkinsJobToken) {
-		error "Missing mandatory args: \n" +
-			  "jobUrl=${arg_remoteJenkinsJobUrl} \n" +
-			  "token=${arg_remoteJenkinsJobToken} \n"
-	}
-	
-	
-			
-	def remoteJenkinsJobUrl_Corrected = getCorrectRemoteJenkinsJobUrl(arg_remoteJenkinsJobUrl)
-	def remoteJenkins_Status = getRemoteJenkinsStatus()
-	def params = jsonParse(env.choice_app)
 }
 
 
@@ -41,6 +43,12 @@ def getCorrectRemoteJenkinsJobUrl(arg_remoteJenkinsJobUrl) {
 	if (remoteJenkinsJobUrl_Corrected[strLength-1] == '/') {remoteJenkinsJobUrl_Corrected=remoteJenkinsJobUrl_Corrected.substring(0, strLength-1)}
 	
 	return remoteJenkinsJobUrl_Corrected
+}
+
+def getRemoteJenkinsStatus(remoteJenkinsJobUrl_Corrected, arg_remoteJenkinsJobToken) {
+	
+	sh 'curl -X POST "${remoteJenkinsJobUrl_Corrected}/build?token=${arg_remoteJenkinsJobToken}"'
+	
 }
 
 
