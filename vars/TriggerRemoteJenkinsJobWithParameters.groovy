@@ -13,10 +13,13 @@ def call(Map args = [:]) {
 	/* Assign args */
 	jobUrl = args.jobUrl  ?: null
 	jobToken = args.jobToken ?: null
+	failBuildOnRemoteJobFailure = args.failBuildOnRemoteJobFailure ?: true
+	remoteJobParametersString = args.remoteJobParametersString ?: null
 	timeoutSec = args.timeoutSec ?: 120
 	sleepBetweenPollingSec = args.sleepBetweenPollingSec ?: 5
 	
-	/* Check mandatory args */
+	/* Validate mandatory args */
+	failBuildOnRemoteJobFailure = failBuildOnRemoteJobFailure.toBoolean()
 	if (! jobUrl || ! jobToken) {error "Missing mandatory args: \njobUrl=${jobUrl} \njobToken=${jobToken} \n"}
 	if (timeoutSec.toInteger() <= 0 || sleepBetweenPollingSec <= 0) {error "Bad args received: \n"+
 																			"timeoutSec=${timeoutSec} \n"+
@@ -46,7 +49,7 @@ def call(Map args = [:]) {
 	if (! nextBuildNumber) {error "Failed getting next build number in remote jenkins job. \nCannot issue remote command to start a new job"}
 	
 	/* Execute remote jenkins job */
-	executeRemoteJenkinsJob(jobUrl, jobToken)
+	executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
 	
 	/* Wait for it to finish */
 	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
@@ -67,9 +70,17 @@ def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
 	return proc.in.text.trim()
 }
 
-def executeRemoteJenkinsJob(jobUrl, jobToken) {
-	def curl_command = "curl -X POST --fail ${jobUrl}/build?token=${jobToken}"
-	print "Execution remote jenkins job at: ${jobUrl}/build"
+def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString) {
+	
+	def isRemoteJobAcceptsParameters = checkIfRemoteJobAcceptsParameters(remoteJenkinsJobStatus_Json)
+	
+	if (remoteJobParametersString) {remoteJobParams = getRemoteJobParametersFormattedString(remoteJobParametersString)}
+	def curl_command = "curl -X POST --fail ${jobUrl}/build?token=${jobToken}${remoteJobParams}"
+	
+	/* Print command with or without params */
+	if (remoteJobParametersString) {print "Execution remote jenkins job at: ${jobUrl}/build"}
+	else {print "Execution remote jenkins job at: ${jobUrl}/build"}
+	
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
@@ -98,5 +109,14 @@ def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
 	if (remoteJenkinsJobStatus_Json["building"] == null || remoteJenkinsJobStatus_Json["building"] == true) {print "remote job still building"; return false}
 	print "remote job finished building";
 	return true
+}
+
+def checkIfRemoteJobAcceptsParameters(remoteJenkinsJobStatus_Json) {
+	for (prop in remoteJenkinsJobStatus_Json.get("property")) {
+		print "prop=${prop}\n"+
+			  "_class=${prop._class}"
+		
+	}
+	
 }
 
