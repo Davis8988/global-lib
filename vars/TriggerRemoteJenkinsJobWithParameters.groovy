@@ -52,8 +52,8 @@ def call(Map args = [:]) {
 	nextBuildNumber = remoteJenkinsJobStatus_Json.get("nextBuildNumber", null)
 	if (! nextBuildNumber) {error "Failed getting next build number in remote jenkins job. \nCannot issue remote command to start a new job"}
 	
-	/* Execute remote jenkins job */
-	executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
+	/* Trigger remote jenkins job */
+	triggerRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
 	
 	/* If doesn't want to wait - then exit here */
 	if (!waitForRemoteJobToFinish) {
@@ -92,7 +92,7 @@ def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
 	return proc.in.text.trim()
 }
 
-def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString) {
+def triggerRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString) {
 	
 	/* Execution url: */
 	def curl_command = "curl -X POST --fail ${jobUrl}/build?token=${jobToken}"
@@ -105,15 +105,15 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 		if (remoteJobParametersString) {remoteJobParams = getRemoteJobParametersFormattedString(remoteJobParametersString)}
 		
 		/* overwrite execution url for parameterized jobs */
-		curl_command = "curl -X POST --fail ${remoteJobParams} ${jobUrl}/buildWithParameters?token=${jobToken}"
+		curl_command = "curl -X POST --fail ${jobUrl}/buildWithParameters?token=${jobToken}${remoteJobParams}"
 	}
 	print "curl_command=${curl_command}"
 	
-	print "Attempting to execute remote jenkins job"
+	print "Attempting to trigger remote jenkins job"
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
-		error "Failed starting remote jenkins job\nCURL execution failure:\n${proc.err.text}"
+		error "Failed triggering remote jenkins job\nCURL execution failure:\n${proc.err.text}"
 	}
 }
 
@@ -156,10 +156,10 @@ def getRemoteJobParametersFormattedString(remoteJobParametersString) {
 	def remoteJobParams_result = ""
 	def remoteJobParams_arr = remoteJobParametersString.toString().split(",")
 	for (jobParam in remoteJobParams_arr) {
-		remoteJobParams_result += "-d \"${jobParam.trim()}\" "
+		remoteJobParams_result += "&${jobParam.trim()}"
 	}
-	
-	return remoteJobParams_result
+	/* Replace spaces with %20 for url spacing */
+	return remoteJobParams_result.replaceAll(" ", "%20")
 }
 
 def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
