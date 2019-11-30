@@ -35,7 +35,7 @@ def call(Map args = [:]) {
 	
 	def remoteJenkins_Status = getRemoteJenkinsStatus(jobUrl)
 	def remoteJenkins_Status_Json = jsonParse(remoteJenkins_Status)
-	print("Remote Jenkins Status:\n"+JsonOutput.prettyPrint(remoteJenkins_Status_Json))
+	print("Remote Jenkins Status:\n"+JsonOutput.prettyPrint(remoteJenkins_Status))
 }
 
 
