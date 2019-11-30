@@ -3,7 +3,6 @@
 
 #Helper dirs:
 explanations/
-tests/
 
 # Log file
 *.log
