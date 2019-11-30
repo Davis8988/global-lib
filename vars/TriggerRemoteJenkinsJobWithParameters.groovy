@@ -17,6 +17,7 @@ def call(Map args = [:]) {
 			"jobUrl=${arg_remoteJenkinsJobUrl} \n" +
 			"token=${arg_remoteJenkinsJobToken} \n" 
 	
+	
 	/* Check mandatory args */
 	if (! arg_remoteJenkinsJobUrl || ! arg_remoteJenkinsJobToken) {
 		error "Missing mandatory args: \n" +
