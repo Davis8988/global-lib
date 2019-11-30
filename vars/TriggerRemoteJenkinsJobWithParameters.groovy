@@ -46,7 +46,10 @@ def getCorrectRemoteJenkinsJobUrl(arg_remoteJenkinsJobUrl) {
 
 def getRemoteJenkinsStatus(remoteJenkinsJobUrl_Corrected, arg_remoteJenkinsJobToken) {
 	
-	sh 'curl -X POST "${remoteJenkinsJobUrl_Corrected}/build?token=${arg_remoteJenkinsJobToken}"'
+	sh '''
+		echo "${remoteJenkinsJobUrl_Corrected}/build?token=${arg_remoteJenkinsJobToken}"
+		curl -X POST "${remoteJenkinsJobUrl_Corrected}/build?token=${arg_remoteJenkinsJobToken}"
+	'''
 	
 }
 
