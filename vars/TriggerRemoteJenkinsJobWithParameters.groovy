@@ -29,9 +29,11 @@ def call(Map args = [:]) {
 	/* Print used params in this execution */
 	println "Trigger Remote Jenkins Job Params: \n" +
 			" jobUrl=${jobUrl} \n" +
-			" jobToken=${jobToken} \n" 
-			" timeoutSec=${timeoutSec}"
-			" sleepBetweenPollingSec=${sleepBetweenPollingSec}"
+			" jobToken=${jobToken} \n" +
+			" failBuildOnRemoteJobFailure=${failBuildOnRemoteJobFailure}" +
+			" timeoutSec=${timeoutSec}" +
+			" sleepBetweenPollingSec=${sleepBetweenPollingSec}" +
+			" remoteJobParametersString=${remoteJobParametersString}"
 	
 	
 	/* Fix job url (if needed) */
