@@ -162,7 +162,7 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 	
 	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
 	print "Comparing ${lastSuccessfulBuild.number} == ${nextBuildNumber}"
-	if (lastSuccessfulBuild.number.toInteger() == nextBuildNumber.toInteger()) {
+	if (lastSuccessfulBuild.number.toInteger().equals(nextBuildNumber.toInteger())) {
 		return true
 	} else {
 		return false
