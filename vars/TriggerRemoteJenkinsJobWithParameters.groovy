@@ -13,13 +13,16 @@ def call(Map args = [:]) {
 	/* Assign args */
 	jobUrl = args.jobUrl  ?: null
 	jobToken = args.jobToken ?: null
+	timeoutSeconds = args.timeoutSeconds.toInteger() ?: 30
 	
 	/* Check mandatory args */
 	if (! jobUrl || ! jobToken) {error "Missing mandatory args: \njobUrl=${jobUrl} \njobToken=${jobToken} \n"}
+	if (timeoutSeconds <= 0 || retryCount < 0) {error "Bad args received: \ntimeoutSeconds=${timeoutSeconds} \ntimeoutSeconds must be greater than 0"}
 	
-	println "Received args: \n" +
-			"jobUrl=${jobUrl} \n" +
-			"jobToken=${jobToken} \n" 
+	println "Trigger Remote Jenkins Job Params: \n" +
+			" jobUrl=${jobUrl} \n" +
+			" jobToken=${jobToken} \n" 
+			" timeoutSeconds=${timeoutSeconds}"
 	
 	
 	/* Fix job url (if needed) */
@@ -37,8 +40,7 @@ def call(Map args = [:]) {
 	
 	executeRemoteJenkinsJob(jobUrl, jobToken)
 	
-	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber)
-	
+	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds)
 	
 }
 
@@ -66,15 +68,16 @@ def executeRemoteJenkinsJob(jobUrl, jobToken) {
 }
 
 
-def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber) {
-	timeoutSeconds = 6
-	retriesCount = 10
+def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds) {
 	def isFinishedWaiting = false
-	while(!isFinishedWaiting && retriesCount > 0) {
-		sleep(timeoutSeconds)
-		def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}")
-		isFinishedWaiting = checkIfRemoteJobFinished(jsonParse(remoteJenkinsJobStatus), nextBuildNumber)
+	timeout(time: timeoutSeconds, unit: 'SECONDS') {
+		while(!isFinishedWaiting) {
+			sleep(timeoutSeconds)
+			def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}")
+			isFinishedWaiting = checkIfRemoteJobFinished(jsonParse(remoteJenkinsJobStatus), nextBuildNumber)
+		}
 	}
+	
 	
 	print "Done waiting for remote job to finished building"
 }
