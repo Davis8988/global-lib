@@ -13,6 +13,7 @@ def call(Map args = [:]) {
 	/* Assign args */
 	jobUrl = args.jobUrl  ?: null
 	jobToken = args.jobToken ?: null
+	waitForRemoteJobToFinish = args.waitForRemoteJobToFinish ?: true
 	failBuildOnRemoteJobFailure = args.failBuildOnRemoteJobFailure ?: true
 	remoteJobParametersString = args.remoteJobParametersString ?: null
 	timeoutSec = args.timeoutSec ?: 120
@@ -30,6 +31,7 @@ def call(Map args = [:]) {
 	println "Trigger Remote Jenkins Job Params: \n" +
 			" jobUrl=${jobUrl} \n" +
 			" jobToken=${jobToken} \n" +
+			" waitForRemoteJobToFinish=${waitForRemoteJobToFinish} \n" +
 			" failBuildOnRemoteJobFailure=${failBuildOnRemoteJobFailure} \n" +
 			" timeoutSec=${timeoutSec} \n" +
 			" sleepBetweenPollingSec=${sleepBetweenPollingSec} \n" +
@@ -59,8 +61,9 @@ def call(Map args = [:]) {
 	/* Delay for 1 seconds to let remote jenkins finish updating */
 	sleep(1)
 	
-	/* Check if remote job building failed*/
-	if (failBuildOnRemoteJobFailure) {
+	/* If wants to wait for remote job execution to finish */
+	if (waitForRemoteJobToFinish) {
+		/* Check if remote job building failed*/
 		if (checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) == false) {
 			error "Remote job [No. ${nextBuildNumber}] finsihed with failure: ${jobUrl}/${nextBuildNumber}/console" 
 		}
@@ -98,6 +101,7 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 		/* overwrite execution url for parameterized jobs */
 		curl_command = "curl -X POST --fail ${remoteJobParams} ${jobUrl}/buildWithParameters?token=${jobToken}"
 	}
+	print "curl_command=${curl_command}"
 	
 	print "Attempting to execute remote jenkins job"
 	def proc = curl_command.execute()
@@ -146,7 +150,7 @@ def getRemoteJobParametersFormattedString(remoteJobParametersString) {
 	def remoteJobParams_result = ""
 	def remoteJobParams_arr = remoteJobParametersString.toString().split(",")
 	for (jobParam in remoteJobParams_arr) {
-		remoteJobParams_result += "-d '${jobParam.trim()}' "
+		remoteJobParams_result += "-d \"${jobParam.trim()}\" "
 	}
 	
 	return remoteJobParams_result
