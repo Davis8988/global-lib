@@ -146,7 +146,7 @@ def getRemoteJobParametersFormattedString(remoteJobParametersString) {
 	def remoteJobParams_result = ""
 	def remoteJobParams_arr = remoteJobParametersString.toString().split(",")
 	for (jobParam in remoteJobParams_arr) {
-		remoteJobParams_result += "-d ${jobParam.trim()} "
+		remoteJobParams_result += "-d \"${jobParam.trim()}\" "
 	}
 	
 	return remoteJobParams_result
