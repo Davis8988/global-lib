@@ -52,10 +52,13 @@ def call(Map args = [:]) {
 	executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
 	
 	/* Wait for it to finish */
-	def remoteJenkinsJobFinishedStatus_Json = waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
+	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
+	
+	/* Delay for 3 seconds to let remote jenkins finish updating */
+	sleep(3)
 	
 	/* Check if remote job was successful */
-	if (failBuildOnRemoteJobFailure) {checkIfRemoteJobWasSuccessful(remoteJenkinsJobFinishedStatus_Json, nextBuildNumber, jobUrl)}
+	if (failBuildOnRemoteJobFailure) {checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber)}
 }
 
 
@@ -98,23 +101,22 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 
 
 def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sleepBetweenPollingSec) {
+	/* Init */
 	def isFinishedWaiting = false
 	def abortOnCurlFailure = false  //Should not abort here since on the first few executions that build is not present yet. So we get NOT FOUND error.
-	def remoteJenkinsJobStatus = ""
-	def remoteJenkinsJobStatus_Json = null
+	
+	/* Wait untill remote job has finished building, or timeout expires*/
 	print "Waiting for remote job to start ${jobUrl}/${nextBuildNumber} and finish building.."
 	timeout(time: timeoutSeconds, unit: 'SECONDS') {
 		while(!isFinishedWaiting) {
 			sleep(sleepBetweenPollingSec)
-			remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}", abortOnCurlFailure)
-			remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
+			def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus("${jobUrl}/${nextBuildNumber}", abortOnCurlFailure)
+			def remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
 			isFinishedWaiting = checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber)
 		}
 	}
 	
 	print "Done waiting for remote job to finished building.."
-	print JsonOutput.prettyPrint("${remoteJenkinsJobStatus}")
-	return remoteJenkinsJobStatus_Json
 }
 
 def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
@@ -142,7 +144,12 @@ def getRemoteJobParametersFormattedString(remoteJobParametersString) {
 	return remoteJobParams_result
 }
 
-def checkIfRemoteJobWasSuccessful(remoteJenkinsJobFinishedStatus_Json, nextBuildNumber, jobUrl) {
+def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
+	/* Read remote job status after done building*/
+	def abortOnCurlFailure = true
+	remoteJenkinsJobFinishedStatus_Json = jsonParse(getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure))
+	
+	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
 	if (! remoteJenkinsJobFinishedStatus_Json) {error "Failed checking if remote job was successful - job result json object is null"}
 	def lastSuccessfulBuild = remoteJenkinsJobFinishedStatus_Json.get("lastSuccessfulBuild", null)
 	if (! lastSuccessfulBuild) {error "Failed checking if remote job was successful - could not read property 'lastSuccessfulBuild' of job result json object"}
