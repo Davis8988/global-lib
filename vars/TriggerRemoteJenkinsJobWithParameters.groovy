@@ -44,7 +44,7 @@ def getRemoteJenkinsStatus(jobUrl) {
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
-		error "${proc.err.text}"
+		error "CURL execution failed:\n${proc.err.text}"
 	}
 	
 	return proc.in.text.trim()
