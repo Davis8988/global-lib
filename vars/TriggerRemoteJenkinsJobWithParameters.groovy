@@ -33,7 +33,7 @@ def call(Map args = [:]) {
 			" failBuildOnRemoteJobFailure=${failBuildOnRemoteJobFailure} \n" +
 			" timeoutSec=${timeoutSec} \n" +
 			" sleepBetweenPollingSec=${sleepBetweenPollingSec} \n" +
-			" remoteJobParametersString=${remoteJobParametersString}"
+			" remoteJobParametersString=${remoteJobParametersString} \n"
 	
 	
 	/* Fix job url (if needed) */
@@ -56,8 +56,8 @@ def call(Map args = [:]) {
 	/* Wait for it to finish */
 	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
 	
-	/* Delay for 3 seconds to let remote jenkins finish updating */
-	sleep(3)
+	/* Delay for 1 seconds to let remote jenkins finish updating */
+	sleep(1)
 	
 	/* Check if remote job building failed*/
 	if (failBuildOnRemoteJobFailure) {
@@ -163,7 +163,6 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 	if (! lastSuccessfulBuild) {error "Failed checking if remote job was successful - could not read property 'lastSuccessfulBuild' of job result json object"}
 	
 	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
-	print "Comparing ${lastSuccessfulBuild.number} == ${nextBuildNumber}"
 	if (lastSuccessfulBuild.number == nextBuildNumber) {
 		return true
 	} else {
