@@ -33,13 +33,34 @@ def call(Map args = [:]) {
 	if (jobUrl[jobUrlLength-1] == '/') {jobUrl=jobUrl.substring(0, jobUrlLength-1)}
 	
 	
-	def remoteJenkins_Status = getRemoteJenkinsStatus(jobUrl)
-	def remoteJenkins_Status_Json = jsonParse(remoteJenkins_Status)
-	print("Remote Jenkins Status:\n"+JsonOutput.prettyPrint(remoteJenkins_Status))
+	def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus(jobUrl)
+	def remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
+	
+	nextBuildNumber = remoteJenkinsJobStatus_Json.get("nextBuildNumber", null)
+	nextBuildNumber2 = remoteJenkinsJobStatus_Json.get("nextBuildNumber2", null)
+	print("Next build numbers:\n" +
+		  " nextBuildNumber=${nextBuildNumber}\n "+
+		  " nextBuildNumber2=${nextBuildNumber2}\n "
+		  
+	
+	
 }
 
 
-def getRemoteJenkinsStatus(jobUrl) {
+def getRemoteJenkinsJobStatus(jobUrl) {
+	def curl_command = "curl -X POST --fail ${jobUrl}/api/json "
+	print "Executing: ${curl_command}"
+	def proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "CURL execution failed:\n${proc.err.text}"
+	}
+	
+	return proc.in.text.trim()
+}
+
+
+def checkIfCSRL(jobUrl) {
 	def curl_command = "curl -X POST ${jobUrl}/api/json "
 	print "Executing: ${curl_command}"
 	def proc = curl_command.execute()
