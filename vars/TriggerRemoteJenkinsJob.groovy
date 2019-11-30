@@ -11,15 +11,16 @@ def jsonParse(def json) {
 
 def call(Map args = [:]) {
 	/* Assign args */
-	jobUrl = args.jobUrl  ?: null
-	jobToken = args.jobToken ?: null
-	waitForRemoteJobToFinish = args.waitForRemoteJobToFinish ?: true
-	failBuildOnRemoteJobFailure = args.failBuildOnRemoteJobFailure ?: true
+	jobUrl = args.jobUrl      ?: null
+	jobToken = args.jobToken  ?: null
 	remoteJobParametersString = args.remoteJobParametersString ?: null
 	timeoutSec = args.timeoutSec ?: 120
 	sleepBetweenPollingSec = args.sleepBetweenPollingSec ?: 5
+	waitForRemoteJobToFinish = args.waitForRemoteJobToFinish      
+	failBuildOnRemoteJobFailure = args.failBuildOnRemoteJobFailure
 	
 	/* Validate mandatory args */
+	waitForRemoteJobToFinish = waitForRemoteJobToFinish.toBoolean()
 	failBuildOnRemoteJobFailure = failBuildOnRemoteJobFailure.toBoolean()
 	if (! jobUrl || ! jobToken) {error "Missing mandatory args: \njobUrl=${jobUrl} \njobToken=${jobToken} \n"}
 	if (timeoutSec.toInteger() <= 0 || sleepBetweenPollingSec <= 0) {error "Bad args received: \n"+
