@@ -40,7 +40,7 @@ def call(Map args = [:]) {
 
 
 def getRemoteJenkinsStatus(jobUrl) {
-	def curl_command = " curl -X POST ${jobUrl}/api/json "
+	def curl_command = " curl -X POST ""${jobUrl}/api/json"" "
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
