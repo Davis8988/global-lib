@@ -21,7 +21,7 @@ def call(Map args = [:]) {
 	if (timeoutSec.toInteger() <= 0 || sleepBetweenPollingSec <= 0) {error "Bad args received: \n"+
 																			"timeoutSec=${timeoutSec} \n"+
 																			"sleepBetweenPollingSec=${sleepBetweenPollingSec} \n"+
-																			"timeoutSeconds, sleepBetweenPollingSec both must be greater than 0"}
+																			"timeoutSec, sleepBetweenPollingSec both must be greater than 0"}
 	
 	/* Print used params in this execution */
 	println "Trigger Remote Jenkins Job Params: \n" +
@@ -48,7 +48,7 @@ def call(Map args = [:]) {
 	executeRemoteJenkinsJob(jobUrl, jobToken)
 	
 	/* Wait for it to finish */
-	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sleepBetweenPollingSec)
+	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
 	
 }
 
