@@ -112,7 +112,7 @@ def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sle
 	}
 	
 	print "Done waiting for remote job to finished building.."
-	print "${remoteJenkinsJobStatus_Json}"
+	JsonOutput.prettyPrint("${remoteJenkinsJobStatus_Json}")
 	return remoteJenkinsJobStatus_Json
 }
 
