@@ -9,7 +9,7 @@ def jsonParse(def json) {
 }
 
 
-def call(Map args[:]) {
+def call(Map [:] args) {
 	arg_remoteJenkinsJobUrl = args.jobUrl ? null
 	arg_remoteJenkinsJobToken = args.token ? null
 	
