@@ -54,6 +54,7 @@ def call(Map args = [:]) {
 	/* Wait for it to finish */
 	def remoteJenkinsJobFinishedStatus_Json = waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
 	
+	/* Check if remote job was successful */
 	if (failBuildOnRemoteJobFailure) {checkIfRemoteJobWasSuccessful(remoteJenkinsJobFinishedStatus_Json, nextBuildNumber, jobUrl)}
 }
 
@@ -111,6 +112,7 @@ def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sle
 	}
 	
 	print "Done waiting for remote job to finished building.."
+	print "${remoteJenkinsJobFinishedStatus_Json}"
 	return remoteJenkinsJobStatus_Json
 }
 
