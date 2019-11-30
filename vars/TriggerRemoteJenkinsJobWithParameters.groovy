@@ -55,12 +55,17 @@ def call(Map args = [:]) {
 	/* Execute remote jenkins job */
 	executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remoteJobParametersString)
 	
+	/* If doesn't want to wait - then exit here */
+	if (!waitForRemoteJobToFinish) {
+		print "Finished triggering build of remote jenkins job: ${jobUrl}/${nextBuildNumber} \nContinuing.."
+		return		
+	} 
+	
 	/* Wait for it to finish */
 	waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSec, sleepBetweenPollingSec)
-	
 	/* Delay for 1 seconds to let remote jenkins finish updating */
 	sleep(1)
-	
+
 	/* If wants to wait for remote job execution to finish */
 	if (waitForRemoteJobToFinish) {
 		/* Check if remote job building failed*/
@@ -70,6 +75,7 @@ def call(Map args = [:]) {
 	}
 	
 	print "Remote job [No. ${nextBuildNumber}] finsihed successfully: ${jobUrl}/${nextBuildNumber}/console"
+	
 }
 
 
@@ -104,11 +110,12 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 	print "curl_command=${curl_command}"
 	
 	print "Attempting to execute remote jenkins job"
-	def proc = curl_command.execute()
-	proc.waitFor()
-	if (proc.exitValue()) {
-		error "Failed starting remote jenkins job\nCURL execution failure:\n${proc.err.text}"
-	}
+	sh ("${curl_command}")
+	//def proc = curl_command.execute()
+	//proc.waitFor()
+	//if (proc.exitValue()) {
+	//	error "Failed starting remote jenkins job\nCURL execution failure:\n${proc.err.text}"
+	//}
 }
 
 
