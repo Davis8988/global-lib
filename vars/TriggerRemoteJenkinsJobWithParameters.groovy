@@ -40,10 +40,10 @@ def call(Map args = [:]) {
 
 def getRemoteJenkinsStatus(jobUrl, jobToken) {
 	
-	sh '''
+	sh """
 		echo "${jobUrl}/build?token=${jobToken}"
 		curl -X POST "${jobUrl}/build?token=${jobToken}"
-	'''
+	"""
 	
 }
 
