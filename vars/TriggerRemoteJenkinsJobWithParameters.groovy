@@ -95,7 +95,7 @@ def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sle
 }
 
 def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
-	if (remoteJenkinsJobStatus_Json['building']) {print "remote job still building"; return false}
+	if (remoteJenkinsJobStatus_Json["building"]) {print "remote job still building"; return false}
 	print "remote job finished building";
 	return true
 }
