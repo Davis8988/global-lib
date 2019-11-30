@@ -17,7 +17,7 @@ def call(Map args = [:]) {
 	
 	/* Check mandatory args */
 	if (! jobUrl || ! jobToken) {error "Missing mandatory args: \njobUrl=${jobUrl} \njobToken=${jobToken} \n"}
-	if (timeoutSeconds.toInteger() <= 0 || retryCount < 0) {error "Bad args received: \ntimeoutSeconds=${timeoutSeconds} \ntimeoutSeconds must be greater than 0"}
+	if (timeoutSeconds.toInteger() <= 0) {error "Bad args received: \ntimeoutSeconds=${timeoutSeconds} \ntimeoutSeconds must be greater than 0"}
 	
 	println "Trigger Remote Jenkins Job Params: \n" +
 			" jobUrl=${jobUrl} \n" +
