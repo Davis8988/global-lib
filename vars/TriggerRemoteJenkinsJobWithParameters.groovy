@@ -149,11 +149,18 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 	def abortOnCurlFailure = true
 	remoteJenkinsJobFinishedStatus_Json = jsonParse(getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure))
 	
-	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
+	/* Get lastSuccessfulBuild.number property */
 	if (! remoteJenkinsJobFinishedStatus_Json) {error "Failed checking if remote job was successful - job result json object is null"}
 	def lastSuccessfulBuild = remoteJenkinsJobFinishedStatus_Json.get("lastSuccessfulBuild", null)
 	if (! lastSuccessfulBuild) {error "Failed checking if remote job was successful - could not read property 'lastSuccessfulBuild' of job result json object"}
-	print "Comparing ${lastSuccessfulBuild} == ${nextBuildNumber}"
-	if (lastSuccessfulBuild == nextBuildNumber) {print "SUCCESS - Remote job ${nextBuildNumber} finsihed successfully:\n${jobUrl}/${nextBuildNumber}/console"; return true}
-	else {"FAILURE - Remote job ${nextBuildNumber} finsihed with failure:\n${jobUrl}/${nextBuildNumber}/console"; return false}
+	
+	/* Check if lastSuccessfulBuild number equals to nextBuildNumber */
+	print "Comparing ${lastSuccessfulBuild.number} == ${nextBuildNumber}"
+	if (lastSuccessfulBuild.number == nextBuildNumber) {
+		print "SUCCESS - Remote job ${nextBuildNumber} finsihed successfully:\n${jobUrl}/${nextBuildNumber}/console"
+		return true
+	} else {
+		print "FAILURE - Remote job ${nextBuildNumber} finsihed with failure:\n${jobUrl}/${nextBuildNumber}/console"
+		return false
+	}
 }
