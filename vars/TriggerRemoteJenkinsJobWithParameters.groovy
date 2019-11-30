@@ -56,7 +56,6 @@ def call(Map args = [:]) {
 
 def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
 	def curl_command = "curl -X POST --fail ${jobUrl}/api/json "
-	print "Executing: ${curl_command}"
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue() && abortOnCurlFailure) {
@@ -82,6 +81,7 @@ def executeRemoteJenkinsJob(jobUrl, jobToken) {
 def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sleepBetweenPollingSec) {
 	def isFinishedWaiting = false
 	def abortOnCurlFailure = false  //Should not abort here since on the first few executions that build is not present yet. So we get NOT FOUND error.
+	print "Waiting for remote job to start ${jobUrl}/${nextBuildNumber} and finish building.."
 	timeout(time: timeoutSeconds, unit: 'SECONDS') {
 		while(!isFinishedWaiting) {
 			sleep(sleepBetweenPollingSec)
@@ -91,7 +91,7 @@ def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sle
 	}
 	
 	
-	print "Done waiting for remote job to finished building"
+	print "Done waiting for remote job to finished building.."
 }
 
 def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
@@ -99,18 +99,4 @@ def checkIfRemoteJobFinished(remoteJenkinsJobStatus_Json, nextBuildNumber) {
 	print "remote job finished building";
 	return true
 }
-
-
-def checkIfCSRL(jobUrl) {
-	def curl_command = "curl -X POST ${jobUrl}/api/json "
-	print "Executing: ${curl_command}"
-	def proc = curl_command.execute()
-	proc.waitFor()
-	if (proc.exitValue()) {
-		error "CURL execution failed:\n${proc.err.text}"
-	}
-	
-	return proc.in.text.trim()
-}
-
 
