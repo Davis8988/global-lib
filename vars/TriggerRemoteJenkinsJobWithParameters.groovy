@@ -62,7 +62,7 @@ def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
 	if (proc.exitValue() && abortOnCurlFailure) {
 		error "Failed getting remote jenkins job status.\nCURL execution failure:\n${proc.err.text}"
 	} else if (proc.exitValue() && ! abortOnCurlFailure) {
-		return "{ curl_failed : true, abortOnCurlFailure : false }"
+		return "{ 'curl_failed' : 'true', 'abortOnCurlFailure' : 'false' }"
 	}
 	
 	return proc.in.text.trim()
