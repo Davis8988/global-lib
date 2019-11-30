@@ -84,7 +84,7 @@ def executeRemoteJenkinsJob(remoteJenkinsJobStatus_Json, jobUrl, jobToken, remot
 		if (remoteJobParametersString) {remoteJobParams = getRemoteJobParametersFormattedString(remoteJobParametersString)}
 		
 		/* overwrite execution url for parameterized jobs */
-		def curl_command = "curl -X POST --fail ${remoteJobParams} ${jobUrl}/buildWithParameters?token=${jobToken}"
+		curl_command = "curl -X POST --fail ${remoteJobParams} ${jobUrl}/buildWithParameters?token=${jobToken}"
 	}
 	
 	print "Attempting to execute remote jenkins job"
