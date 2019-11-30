@@ -106,7 +106,7 @@ def waitForRemoteJenkinsJobToFinish(jobUrl, nextBuildNumber, timeoutSeconds, sle
 	def abortOnCurlFailure = false  //Should not abort here since on the first few executions that build is not present yet. So we get NOT FOUND error.
 	
 	/* Wait untill remote job has finished building, or timeout expires*/
-	print "Waiting for remote job to start ${jobUrl}/${nextBuildNumber} and finish building.."
+	print "Waiting for remote job [With Build NO. ${nextBuildNumber}] to start ${jobUrl}/${nextBuildNumber} and finish building.."
 	timeout(time: timeoutSeconds, unit: 'SECONDS') {
 		while(!isFinishedWaiting) {
 			sleep(sleepBetweenPollingSec)
