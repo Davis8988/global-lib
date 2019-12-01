@@ -1,0 +1,16 @@
+@Library('global-lib@vars/add/trigger-remote-job')_
+
+node {
+    
+    print "Triggering other jenkins job.."
+    
+    TriggerRemoteJenkinsJob(
+        jobUrl : "http://13.90.250.12:8081/job/Test_Remote_Trigger/",
+        jobToken : "onesimlabbuild",
+		waitForRemoteJobToFinish : "false",
+		remoteJobParametersString : "LAB_NAME=Green , HELLO=nowww , HELL=its about time2"
+    )
+    
+    
+    
+}
