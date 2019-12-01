@@ -197,8 +197,8 @@ def checkIfCrumbIsRequired(remoteJenkinsUrl) {
 	}
 	
 	def remoteJenkinsStatus_Json = jsonParse(proc.in.text)
-	if (remoteJenkinsStatus_Json.useCrumbs == true) {return true}
-	return false
+	
+	return remoteJenkinsStatus_Json.useCrumbs == true
 }
 
 
