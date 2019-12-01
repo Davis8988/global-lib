@@ -29,14 +29,7 @@ def call(Map args = [:]) {
 																			"timeoutSec, sleepBetweenPollingSec both must be greater than 0"}
 	
 	/* Print used params in this execution */
-	println "Trigger Remote Jenkins Job Params: \n" +
-			" jobUrl=${jobUrl} \n" +
-			" jobToken=${jobToken} \n" +
-			" waitForRemoteJobToFinish=${waitForRemoteJobToFinish} \n" +
-			" failBuildOnRemoteJobFailure=${failBuildOnRemoteJobFailure} \n" +
-			" timeoutSec=${timeoutSec} \n" +
-			" sleepBetweenPollingSec=${sleepBetweenPollingSec} \n" +
-			" remoteJobParametersString=${remoteJobParametersString} \n"
+	printRemoteJobTriggerParams()
 	
 	
 	/* Fix job url (if needed) */
@@ -45,8 +38,7 @@ def call(Map args = [:]) {
 	def jobUrlLength = jobUrl.length()
 	if (jobUrl[jobUrlLength-1] == '/') {jobUrl=jobUrl.substring(0, jobUrlLength-1)}
 	
-	
-	/* Check status & get next build number before executing */
+	/* Check status & get next-build-number before triggering */
 	def abortOnCurlFailure = true
 	def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure)
 	def remoteJenkinsJobStatus_Json = jsonParse(remoteJenkinsJobStatus)
@@ -77,6 +69,17 @@ def call(Map args = [:]) {
 	
 	print "Remote job [No. ${nextBuildNumber}] finsihed successfully: ${jobUrl}/${nextBuildNumber}/console"
 	
+}
+
+def printRemoteJobTriggerParams() {
+	println "Trigger Remote Jenkins Job Params: \n" +
+			" jobUrl=${jobUrl} \n" +
+			" jobToken=${jobToken} \n" +
+			" waitForRemoteJobToFinish=${waitForRemoteJobToFinish} \n" +
+			" failBuildOnRemoteJobFailure=${failBuildOnRemoteJobFailure} \n" +
+			" timeoutSec=${timeoutSec} \n" +
+			" sleepBetweenPollingSec=${sleepBetweenPollingSec} \n" +
+			" remoteJobParametersString=${remoteJobParametersString} \n"
 }
 
 def getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure) {
@@ -177,3 +180,6 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 		return false
 	}
 }
+
+
+
