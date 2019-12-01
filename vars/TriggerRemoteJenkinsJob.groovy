@@ -38,6 +38,11 @@ def call(Map args = [:]) {
 	def jobUrlLength = jobUrl.length()
 	if (jobUrl[jobUrlLength-1] == '/') {jobUrl=jobUrl.substring(0, jobUrlLength-1)}
 	
+	remoteJenkinsUrl = jobUrl.substring(0, jobUrl.indexOf("/job")).trim()
+	def isCrumbRequired = checkIfCrumbIsRequired(remoteJenkinsUrl)
+	
+	print "Remote jenkins using crumb: ${isCrumbRequired}"
+	return
 	/* Check status & get next-build-number before triggering */
 	def abortOnCurlFailure = true
 	def remoteJenkinsJobStatus = getRemoteJenkinsJobStatus(jobUrl, abortOnCurlFailure)
@@ -181,5 +186,19 @@ def checkIfRemoteJobWasSuccessful(jobUrl, nextBuildNumber) {
 	}
 }
 
+
+def checkIfCrumbIsRequired(remoteJenkinsUrl) {
+	print "Remote Jenkins URL: ${remoteJenkinsUrl}"
+	def curl_command = "curl ${remoteJenkinsUrl}/api/json"
+	def proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "Failed checking if remote jenkins: ${remoteJenkinsUrl} requires valid crumb for remote triggering job via api requests\nError:\n${proc.err.text}"
+	}
+	
+	def remoteJenkinsStatus_Json = jsonParse(proc.in.text)
+	if (remoteJenkinsStatus_Json.useCrumbs == "true"){return true}
+	return false
+}
 
 
