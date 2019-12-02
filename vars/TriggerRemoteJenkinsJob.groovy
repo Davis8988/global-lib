@@ -213,9 +213,9 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	if(!remoteJenkinsUser) {return null}
 	def curl_command = ""
 	if (remoteJenkinsPass) { 
-		def curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsPass} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
+		curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsPass} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
 	} else if (remoteJenkinsUserToekn) {
-		def curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsUserToekn} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
+		curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsUserToekn} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
 	} else {
 		return null
 	}
