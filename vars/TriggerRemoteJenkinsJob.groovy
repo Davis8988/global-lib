@@ -13,6 +13,9 @@ def call(Map args = [:]) {
 	/* Assign args */
 	jobUrl = args.jobUrl      ?: null
 	jobToken = args.jobToken  ?: null
+	remoteJenkinsUser = args.remoteJenkinsUser  ?: null
+	remoteJenkinsPass = args.remoteJenkinsPass  ?: null
+	remoteJenkinsUserToekn = args.remoteJenkinsUserToekn  ?: null
 	remoteJobParametersString = args.remoteJobParametersString ?: null
 	timeoutSec = args.timeoutSec ?: 120
 	sleepBetweenPollingSec = args.sleepBetweenPollingSec ?: 5
@@ -40,8 +43,12 @@ def call(Map args = [:]) {
 	
 	remoteJenkinsUrl = jobUrl.substring(0, jobUrl.indexOf("/job")).trim()
 	def isCrumbRequired = checkIfCrumbIsRequired(remoteJenkinsUrl)
+	if (isCrumbRequired) {
+		remoteJenkinsCrumb = getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass, remoteJenkinsUserToekn)
+		// if (!remoteJenkinsCrumb) {return}
+	}
 	
-	print "Remote jenkins using crumb: ${isCrumbRequired}"
+	print "Remote jenkins using crumb: ${remoteJenkinsCrumb}"
 	return
 	/* Check status & get next-build-number before triggering */
 	def abortOnCurlFailure = true
@@ -201,4 +208,27 @@ def checkIfCrumbIsRequired(remoteJenkinsUrl) {
 	return remoteJenkinsStatus_Json.useCrumbs == true
 }
 
+
+def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass, remoteJenkinsUserToekn) {
+	if(!remoteJenkinsUser) {return null}
+	if (remoteJenkinsPass) { 
+		def curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsPass} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
+	} else if (remoteJenkinsUserToekn) {
+		def curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsUserToekn} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
+	} else {
+		return null
+	}
+	
+	def proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "Failed getting valid crumb from remote jenkins: ${remoteJenkinsUrl} \nError:\n${proc.err.text}"
+	}
+	
+	def curlOutput_json = jsonParse(proc.in.text)
+	def validCrumb = curlOutput_json.crumb
+	def crumbRequestField = curlOutput_json.crumbRequestField
+	print "crumbRequestField: validCrumb = ${crumbRequestField}: ${validCrumb}"
+	return validCrumb
+}
 
