@@ -213,9 +213,9 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	if(!remoteJenkinsUser) {return null}
 	def curl_command = ""
 	if (remoteJenkinsPass) { 
-		curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsPass} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
+		curl_command = "curl --cookie-jar /tmp/cookies -u ${remoteJenkinsUser}:${remoteJenkinsPass} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
 	} else if (remoteJenkinsUserToekn) {
-		curl_command = "curl -u ${remoteJenkinsUser}:${remoteJenkinsUserToekn} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
+		curl_command = "curl --cookie-jar /tmp/cookies -u ${remoteJenkinsUser}:${remoteJenkinsUserToekn} --fail ${remoteJenkinsUrl}/crumbIssuer/api/json"
 	} else {
 		return null
 	}
@@ -230,6 +230,18 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	def validCrumb = curlOutput_json.crumb
 	def crumbRequestField = curlOutput_json.crumbRequestField
 	print "crumbRequestField: validCrumb = ${crumbRequestField}: ${validCrumb}"
+	
+	curl_command = "curl -X POST --cookie-jar /tmp/cookies --fail -u ${remoteJenkinsUser}:${remoteJenkinsPass} -H \"${crumbRequestField}: ${validCrumb}\"  ${remoteJenkinsUrl}/job/Test_Remote_Trigger/build"
+	
+	print "Executing: " + curl_command.toString()
+	proc = curl_command.execute()
+	proc.waitFor()
+	if (proc.exitValue()) {
+		error "Failed executing with valid crumb \nError:\n${proc.err.text}"
+	}
+	
+	print "Result: ${proc.in.text}"
+	
 	return validCrumb
 }
 
