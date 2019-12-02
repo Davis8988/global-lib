@@ -231,7 +231,7 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	def crumbRequestField = curlOutput_json.crumbRequestField
 	print "crumbRequestField: validCrumb = ${crumbRequestField}: ${validCrumb}"
 	
-	curl_command = "curl -X POST --cookie-jar /tmp/cookies --fail -u ${remoteJenkinsUser}:${remoteJenkinsPass} -H ${crumbRequestField}:${validCrumb}  ${remoteJenkinsUrl}/job/Test_Remote_Trigger/build"
+	curl_command = "curl -X POST --cookie-jar /tmp/cookies -v -u ${remoteJenkinsUser}:${remoteJenkinsPass} -H ${crumbRequestField}:${validCrumb}  ${remoteJenkinsUrl}/job/Test_Remote_Trigger/build"
 	
 	print "Executing: " + curl_command.toString()
 	proc = curl_command.execute()
