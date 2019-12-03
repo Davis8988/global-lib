@@ -221,23 +221,25 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	}
 	
 	
-	// sh '''
-		// export JENKINS_URL=http://localhost
-		// export JENKINS_USER=user
-		// export JENKINS_TOKEN=mytoken
-		// export COOKIE_JAR=/tmp/cookies
+	sh '''
+		export remoteJenkinsUrl=http://13.90.250.12:8081
+		export remoteJenkinsUser=admin
+		export remoteJenkinsPass=Abcd1234
+		export COOKIE_JAR=/tmp/cookies
 
-		// JENKINS_CRUMB=$(curl --silent --cookie-jar $COOKIE_JAR ${remoteJenkinsUrl}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb) -u $remoteJenkinsUser:$remoteJenkinsPass )
 
-		// echo $JENKINS_CRUMB
-		
-		// curl -X POST --cookie-jar $COOKIE_JAR -u ${remoteJenkinsUser}:${remoteJenkinsPass} -H $JENKINS_CRUMB  ${remoteJenkinsUrl}/job/Test_Remote_Trigger/build
-		
-		// echo finished
-	// '''
+
+		JENKINS_CRUMB=$(curl --fail --silent --cookie-jar $COOKIE_JAR $remoteJenkinsUrl'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)' -u $remoteJenkinsUser:$remoteJenkinsPass)
+		echo $JENKINS_CRUMB
+
+		curl -X POST --fail --cookie $COOKIE_JAR -u $remoteJenkinsUser:$remoteJenkinsPass -H $JENKINS_CRUMB  $remoteJenkinsUrl/job/Test_Remote_Trigger/build
+
+		echo finished
+
+	'''
 	
 	
-	
+	return
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
