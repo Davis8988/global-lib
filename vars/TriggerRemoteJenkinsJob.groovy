@@ -221,25 +221,23 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	}
 	
 	
-	sh '''
-		export remoteJenkinsUrl=http://13.90.250.12:8081
-		export remoteJenkinsUser=admin
-		export remoteJenkinsPass=Abcd1234
-		export COOKIE_JAR=/tmp/cookies
+	// sh '''
+		// export remoteJenkinsUrl=http://13.90.250.12:8081
+		// export remoteJenkinsUser=admin
+		// export remoteJenkinsPass=Abcd1234
+		// export COOKIE_JAR=/tmp/cookies
 
 
 
-		JENKINS_CRUMB=$(curl --fail --silent --cookie-jar $COOKIE_JAR $remoteJenkinsUrl'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)' -u $remoteJenkinsUser:$remoteJenkinsPass)
-		echo $JENKINS_CRUMB
+		// JENKINS_CRUMB=$(curl --fail --silent --cookie-jar $COOKIE_JAR $remoteJenkinsUrl'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)' -u $remoteJenkinsUser:$remoteJenkinsPass)
+		// echo $JENKINS_CRUMB
 
-		curl -X POST --fail --cookie $COOKIE_JAR -u $remoteJenkinsUser:$remoteJenkinsPass -H $JENKINS_CRUMB  $remoteJenkinsUrl/job/Test_Remote_Trigger/build
+		// curl -X POST --fail --cookie $COOKIE_JAR -u $remoteJenkinsUser:$remoteJenkinsPass -H $JENKINS_CRUMB  $remoteJenkinsUrl/job/Test_Remote_Trigger/build
 
-		echo finished
+		// echo finished
 
-	'''
+	// '''
 	
-	
-	return
 	def proc = curl_command.execute()
 	proc.waitFor()
 	if (proc.exitValue()) {
@@ -251,7 +249,7 @@ def getRemoteJenkinsCrumb(remoteJenkinsUrl, remoteJenkinsUser, remoteJenkinsPass
 	def crumbRequestField = curlOutput_json.crumbRequestField
 	print "crumbRequestField: validCrumb = ${crumbRequestField}: ${validCrumb}"
 	
-	curl_command = "curl -X POST --fail --cookie-jar /tmp/cookies -u ${remoteJenkinsUser}:${remoteJenkinsPass} -H ${crumbRequestField}:${validCrumb}  ${remoteJenkinsUrl}/job/Test_Remote_Trigger/build"
+	curl_command = "curl -X POST --fail --cookie /tmp/cookies -u ${remoteJenkinsUser}:${remoteJenkinsPass} -H ${crumbRequestField}:${validCrumb}  ${remoteJenkinsUrl}/job/Test_Remote_Trigger/build"
 	
 	print "Executing: " + curl_command.toString()
 	proc = curl_command.execute()
