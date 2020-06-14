@@ -1,3 +1,4 @@
+@Library('david')
 import org.junit.Test
 import org.myorg.pipeline.Student
 
