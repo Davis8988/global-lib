@@ -6,8 +6,8 @@ import junit.framework.Test
 import junit.textui.TestRunner 
 
 class AllTests { 
-	@Test
-   static Test suite() { 
+	
+   static Test testSuite() { 
       def allTestsArr = new GroovyTestSuite() 
       allTestsArr.addTestSuite(StudentTest.class) 
       //allTestsArr.addTestSuite(EmployeeTest.class) 
