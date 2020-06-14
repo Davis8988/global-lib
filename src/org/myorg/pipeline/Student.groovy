@@ -1,3 +1,5 @@
+package org.myorg.pipeline
+
 class Example {
    static void main(String[] args) {
       Student mst = new Student();
