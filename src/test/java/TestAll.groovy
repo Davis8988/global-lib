@@ -7,9 +7,9 @@ import junit.textui.TestRunner
 
 class AllTests { 
    static Test suite() { 
-      def allTests = new GroovyTestSuite() 
-      allTests.addTestSuite(StudentTest.class) 
-      //allTests.addTestSuite(EmployeeTest.class) 
-      return allTests 
+      def allTestsArr = new GroovyTestSuite() 
+      allTestsArr.addTestSuite(StudentTest.class) 
+      //allTestsArr.addTestSuite(EmployeeTest.class) 
+      return allTestsArr 
    } 
 } 
