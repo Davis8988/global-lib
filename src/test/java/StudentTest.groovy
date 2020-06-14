@@ -3,7 +3,6 @@ import org.myorg.pipeline.Student
 import static org.junit.Assert.assertEquals;
 
 
-
 import static groovy.test.GroovyAssert.shouldFail
 
 
