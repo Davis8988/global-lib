@@ -8,13 +8,11 @@ import static groovy.test.GroovyAssert.shouldFail
 
 
 class StudentTest extends GroovyTestCase {
-   @Test
    void testStringComp() {
 		print "Testing testStringComp()"
 		assertToString("hello", "hello")
    }
    
-   @Test
    void testDisplay() {
 		print "Testing display()"
 		def stud = new Student(name : 'Joe', ID : '1')
@@ -23,7 +21,6 @@ class StudentTest extends GroovyTestCase {
 		assertToString(stud.Display(), expected)
    }
    
-   @Test
    void testIndexOutOfBoundsAccess() {
 	   print "Testing indexOutOfBoundsAccess()"
        def numbers = [1,2,3,4]
@@ -32,7 +29,6 @@ class StudentTest extends GroovyTestCase {
        }
    }
    
-   @Test
    void testRandomTest() {
 		def sieve = (0..10).toList()
 		GSieve.filter(sieve); // [1,2,3,5,7]
