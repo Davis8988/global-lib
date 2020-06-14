@@ -9,7 +9,7 @@ class StudentTest extends GroovyTestCase {
    void testDisplay() {
 		print "Testing display()"
 		def stud = new Student(name : 'Joe', ID : '1')
-		def expected = 'Joe11'
+		def expected = 'SomethingElse'
 		print "Testing expected output"
 		assertToString(stud.Display(), expected)
    }
