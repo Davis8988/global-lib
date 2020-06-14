@@ -9,6 +9,12 @@ import static groovy.test.GroovyAssert.shouldFail
 
 class StudentTest extends GroovyTestCase {
    @Test
+   void testStringComp() {
+		print "Testing testStringComp()"
+		assertToString("hello", "hello")
+   }
+   
+   @Test
    void testDisplay() {
 		print "Testing display()"
 		def stud = new Student(name : 'Joe', ID : '1')
