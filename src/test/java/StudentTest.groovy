@@ -1,4 +1,3 @@
-@Library('david')
 import org.myorg.pipeline.Student
 
 class StudentTest extends GroovyTestCase {
