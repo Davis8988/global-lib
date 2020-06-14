@@ -1,3 +1,4 @@
+@Library('david')
 import test.java.StudentTest
 import groovy.util.GroovyTestSuite 
 import junit.framework.Test 
