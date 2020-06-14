@@ -1,4 +1,4 @@
-@Library('david')
+
 import org.myorg.pipeline.Student
 import test.java.StudentTest
 import groovy.util.GroovyTestSuite 
