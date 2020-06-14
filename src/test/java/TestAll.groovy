@@ -12,4 +12,4 @@ class AllTests {
    } 
 } 
 print "Executing all tests"
-return TestRunner.run(AllTests.suite())
+TestRunner.run(AllTests.suite())
