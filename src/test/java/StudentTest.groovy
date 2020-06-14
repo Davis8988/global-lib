@@ -1,5 +1,8 @@
 import org.junit.Test
 import org.myorg.pipeline.Student
+import static org.junit.Assert.assertEquals;
+
+
 
 import static groovy.test.GroovyAssert.shouldFail
 
@@ -21,6 +24,13 @@ class StudentTest extends GroovyTestCase {
        shouldFail {
            numbers.get(4)
        }
+   }
+   
+   @Test
+   void randomTest() {
+		def sieve = (0..10).toList()
+		GSieve.filter(sieve); // [1,2,3,5,7]
+		assertEquals("Count of primes in 1..10 not correct", 5, (sieve.findAll {it -> it != 0}).size());
    }
    
 }
