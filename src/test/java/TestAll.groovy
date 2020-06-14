@@ -13,4 +13,12 @@ class AllTests {
    } 
 } 
 print "Executing all tests"
-TestRunner.run(AllTests.suite())
+def results = TestRunner.run(AllTests.suite())
+print "Results: " + results
+print "Results: " + results.wasSuccessful()
+print "Error count: " + results.errorCount()
+print "Failure count: " + results.failureCount()
+print "Erros: "
+results.errors().each {err -> print err}
+print "Failures: "
+results.failures().each {err -> print err}
