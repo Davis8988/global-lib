@@ -5,6 +5,7 @@ node {
     
     withGradle {
 		sh "echo Building with gradle"
+		sh "gradle build"
 	}
 		
 }
