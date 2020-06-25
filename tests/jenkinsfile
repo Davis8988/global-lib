@@ -3,7 +3,8 @@ node {
     
     print "Trying to execute a gradle build"
     
-	sh "echo Building with gradle"
-    
-    
+    withGradle {
+		sh "echo Building with gradle"
+	}
+		
 }
