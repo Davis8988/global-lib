@@ -7,7 +7,7 @@ node {
 		def gradle_app = tool name: 'default', type: 'gradle', file: "bin/gradle"
 		print "Using tool: ${gradle_app}"
 		sh "echo Building with gradle"
-		sh "${gradle_app} build"
+		sh "${gradle_app}/bin/gradle build"
 	}
 		
 }
