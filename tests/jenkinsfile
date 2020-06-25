@@ -4,7 +4,7 @@ node {
     print "Trying to execute a gradle build"
     
     withGradle {
-		def gradle_app = tool name: 'default', type: 'gradle'
+		def gradle_app = tool name: 'default', type: 'gradle', file: "bin/gradle"
 		print "Using tool: ${gradle_app}"
 		sh "echo Building with gradle"
 		sh "${gradle_app} build"
